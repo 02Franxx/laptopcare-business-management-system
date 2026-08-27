@@ -1,0 +1,2 @@
+import { prisma } from '../../utils/prisma'
+export default defineEventHandler(async (event) => { const id = Number(getRouterParam(event, 'id')); const b = await readBody<any>(event); if (!Number.isInteger(id)) throw createError({ statusCode: 400, statusMessage: 'Invalid order id.' }); return prisma.repairOrder.update({ where: { id }, data: { customerId: Number(b.customerId), serviceId: Number(b.serviceId), laptopBrand: b.laptopBrand, laptopModel: b.laptopModel, problem: b.problem, status: b.status }, include: { customer: true, service: true } }) })

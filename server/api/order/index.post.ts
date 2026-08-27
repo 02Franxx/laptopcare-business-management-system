@@ -1,0 +1,2 @@
+import { prisma } from '../../utils/prisma'
+export default defineEventHandler(async (event) => { const b = await readBody<any>(event); if (!b.customerId || !b.serviceId || !b.laptopBrand || !b.laptopModel || !b.problem) throw createError({ statusCode: 400, statusMessage: 'Order details are required.' }); return prisma.repairOrder.create({ data: { customerId: Number(b.customerId), serviceId: Number(b.serviceId), laptopBrand: b.laptopBrand, laptopModel: b.laptopModel, problem: b.problem, status: b.status || 'Pending' }, include: { customer: true, service: true } }) })

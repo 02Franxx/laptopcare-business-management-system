@@ -30,6 +30,7 @@ model RepairOrder {
   laptopBrand String
   laptopModel String
   status      String        @default("Pending")
+  problem     String        @default("")
   createdAt   DateTime      @default(now())
 
   customer Customer      @relation(fields: [customerId], references: [id])
