@@ -343,19 +343,25 @@ const completedOrders = computed(() => {
 // Login
 // ================================
 
-const login = () => {
+const login = async () => {
   if (
     username.value &&
     password.value
   ) {
-    currentUser.value = username.value
-    isLoggedIn.value = true
-    currentPage.value = 'dashboard'
+    try {
+      const session = await $fetch('/api/auth/login', { method: 'POST', body: { username: username.value, password: password.value } })
+      currentUser.value = session.username
+      isLoggedIn.value = true
+      currentPage.value = 'dashboard'
+    } catch (error) {
+      console.error('Login failed:', error)
+    }
   }
 }
 
 // Logout
-const logout = () => {
+const logout = async () => {
+  await $fetch('/api/auth/logout', { method: 'POST' })
   isLoggedIn.value = false
 
   username.value = ''
