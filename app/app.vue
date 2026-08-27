@@ -68,17 +68,16 @@ const editCustomer = (index) => {
 }
 
 // Update Customer
-const updateCustomer = () => {
+const updateCustomer = async () => {
   if (
     customerName.value &&
     customerPhone.value &&
     customerEmail.value
   ) {
-    customers.value[editingCustomerIndex.value] = {
-      name: customerName.value,
-      phone: customerPhone.value,
-      email: customerEmail.value
-    }
+    const customer = customers.value[editingCustomerIndex.value]
+    if (!isValidEmail(customerEmail.value) || !customer?.id) return
+    const updated = await $fetch(`/api/customer/${customer.id}`, { method: 'PATCH', body: { name: customerName.value, phone: customerPhone.value, email: customerEmail.value } })
+    customers.value[editingCustomerIndex.value] = updated
 
     customerName.value = ''
     customerPhone.value = ''
@@ -98,7 +97,10 @@ const cancelCustomerEdit = () => {
 }
 
 // Delete Customer
-const deleteCustomer = (index) => {
+const deleteCustomer = async (index) => {
+  const customer = customers.value[index]
+  if (!customer?.id) return
+  await $fetch(`/api/customer/${customer.id}`, { method: 'DELETE' })
   customers.value.splice(index, 1)
 }
 
@@ -385,9 +387,6 @@ const loadCustomers = async () => {
 onMounted(() => {
   loadCustomers()
 
-  const savedCustomers =
-    window.localStorage.getItem('customers')
-
   // Customers are loaded from Prisma; legacy local data is intentionally ignored.
 
   const savedRepairServices =
@@ -406,20 +405,6 @@ onMounted(() => {
       JSON.parse(savedRepairOrders)
   }
 })
-
-// Save Customers
-watch(
-  customers,
-  (newCustomers) => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(
-        'customers',
-        JSON.stringify(newCustomers)
-      )
-    }
-  },
-  { deep: true }
-)
 
 // Save Repair Services
 watch(
