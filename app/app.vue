@@ -115,15 +115,13 @@ const repairServices = ref([])
 const editingServiceIndex = ref(null)
 
 // Add Repair Service
-const addRepairService = () => {
+const addRepairService = async () => {
   if (
     serviceName.value &&
     servicePrice.value
   ) {
-    repairServices.value.push({
-      name: serviceName.value,
-      price: servicePrice.value
-    })
+    const created = await $fetch('/api/service', { method: 'POST', body: { name: serviceName.value, price: Number(servicePrice.value) } })
+    repairServices.value.unshift(created)
 
     serviceName.value = ''
     servicePrice.value = ''
@@ -141,15 +139,14 @@ const editRepairService = (index) => {
 }
 
 // Update Repair Service
-const updateRepairService = () => {
+const updateRepairService = async () => {
   if (
     serviceName.value &&
     servicePrice.value
   ) {
-    repairServices.value[editingServiceIndex.value] = {
-      name: serviceName.value,
-      price: servicePrice.value
-    }
+    const service = repairServices.value[editingServiceIndex.value]
+    const updated = await $fetch(`/api/service/${service.id}`, { method: 'PATCH', body: { name: serviceName.value, price: Number(servicePrice.value) } })
+    repairServices.value[editingServiceIndex.value] = updated
 
     serviceName.value = ''
     servicePrice.value = ''
@@ -167,7 +164,8 @@ const cancelServiceEdit = () => {
 }
 
 // Delete Repair Service
-const deleteRepairService = (index) => {
+const deleteRepairService = async (index) => {
+  await $fetch(`/api/service/${repairServices.value[index].id}`, { method: 'DELETE' })
   repairServices.value.splice(index, 1)
 }
 
@@ -233,7 +231,7 @@ const repairOrders = ref([])
 const editingOrderIndex = ref(null)
 
 // Add Repair Order
-const addRepairOrder = () => {
+const addRepairOrder = async () => {
   if (
     selectedCustomer.value !== '' &&
     selectedBrand.value !== '' &&
@@ -241,14 +239,11 @@ const addRepairOrder = () => {
     problemDescription.value &&
     selectedService.value !== ''
   ) {
-    repairOrders.value.push({
-      customer: selectedCustomer.value,
-      brand: selectedBrand.value,
-      model: selectedModel.value,
-      problem: problemDescription.value,
-      service: selectedService.value,
-      status: repairStatus.value
-    })
+    const customer = customers.value.find(item => item.name === selectedCustomer.value)
+    const service = repairServices.value.find(item => item.name === selectedService.value)
+    if (!customer?.id || !service?.id) return
+    const created = await $fetch('/api/order', { method: 'POST', body: { customerId: customer.id, serviceId: service.id, laptopBrand: selectedBrand.value, laptopModel: selectedModel.value, problem: problemDescription.value, status: repairStatus.value } })
+    repairOrders.value.unshift({ id: created.id, customer: created.customer.name, brand: created.laptopBrand, model: created.laptopModel, problem: created.problem, service: created.service.name, status: created.status, customerId: created.customerId, serviceId: created.serviceId })
 
     clearRepairOrderForm()
   }
@@ -269,7 +264,7 @@ const editRepairOrder = (index) => {
 }
 
 // Update Repair Order
-const updateRepairOrder = () => {
+const updateRepairOrder = async () => {
   if (
     selectedCustomer.value !== '' &&
     selectedBrand.value !== '' &&
@@ -277,14 +272,11 @@ const updateRepairOrder = () => {
     problemDescription.value &&
     selectedService.value !== ''
   ) {
-    repairOrders.value[editingOrderIndex.value] = {
-      customer: selectedCustomer.value,
-      brand: selectedBrand.value,
-      model: selectedModel.value,
-      problem: problemDescription.value,
-      service: selectedService.value,
-      status: repairStatus.value
-    }
+    const order = repairOrders.value[editingOrderIndex.value]
+    const customer = customers.value.find(item => item.name === selectedCustomer.value)
+    const service = repairServices.value.find(item => item.name === selectedService.value)
+    const updated = await $fetch(`/api/order/${order.id}`, { method: 'PATCH', body: { customerId: customer.id, serviceId: service.id, laptopBrand: selectedBrand.value, laptopModel: selectedModel.value, problem: problemDescription.value, status: repairStatus.value } })
+    repairOrders.value[editingOrderIndex.value] = { id: updated.id, customer: updated.customer.name, brand: updated.laptopBrand, model: updated.laptopModel, problem: updated.problem, service: updated.service.name, status: updated.status, customerId: updated.customerId, serviceId: updated.serviceId }
 
     clearRepairOrderForm()
   }
@@ -296,7 +288,8 @@ const cancelOrderEdit = () => {
 }
 
 // Delete Repair Order
-const deleteRepairOrder = (index) => {
+const deleteRepairOrder = async (index) => {
+  await $fetch(`/api/order/${repairOrders.value[index].id}`, { method: 'DELETE' })
   repairOrders.value.splice(index, 1)
 
   if (editingOrderIndex.value === index) {
@@ -384,55 +377,17 @@ const loadCustomers = async () => {
   }
 }
 
+const loadServices = async () => { repairServices.value = await $fetch('/api/service') }
+const loadOrders = async () => {
+  const rows = await $fetch('/api/order')
+  repairOrders.value = rows.map(row => ({ id: row.id, customer: row.customer.name, brand: row.laptopBrand, model: row.laptopModel, problem: row.problem, service: row.service.name, status: row.status, customerId: row.customerId, serviceId: row.serviceId }))
+}
+
 onMounted(() => {
   loadCustomers()
-
-  // Customers are loaded from Prisma; legacy local data is intentionally ignored.
-
-  const savedRepairServices =
-    window.localStorage.getItem('repairServices')
-
-  if (savedRepairServices) {
-    repairServices.value =
-      JSON.parse(savedRepairServices)
-  }
-
-  const savedRepairOrders =
-    window.localStorage.getItem('repairOrders')
-
-  if (savedRepairOrders) {
-    repairOrders.value =
-      JSON.parse(savedRepairOrders)
-  }
+  loadServices()
+  loadOrders()
 })
-
-// Save Repair Services
-watch(
-  repairServices,
-  (newRepairServices) => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(
-        'repairServices',
-        JSON.stringify(newRepairServices)
-      )
-    }
-  },
-  { deep: true }
-)
-
-// Save Repair Orders
-watch(
-  repairOrders,
-  (newRepairOrders) => {
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(
-        'repairOrders',
-        JSON.stringify(newRepairOrders)
-      )
-    }
-  },
-  { deep: true }
-)
 </script>
 
 <template>
