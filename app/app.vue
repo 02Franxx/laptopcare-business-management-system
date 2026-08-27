@@ -390,9 +390,11 @@ const loadOrders = async () => {
 }
 
 onMounted(() => {
-  loadCustomers()
-  loadServices()
-  loadOrders()
+  $fetch('/api/auth/me').then((session) => {
+    currentUser.value = session.username
+    isLoggedIn.value = true
+    return Promise.all([loadCustomers(), loadServices(), loadOrders()])
+  }).catch(() => {})
 })
 </script>
 

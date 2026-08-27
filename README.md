@@ -12,6 +12,7 @@ A responsive laptop-repair management dashboard built with Nuxt 4 and Vue 3 Comp
 - SQLite database with Prisma migrations
 - Simple demo login for local presentation
 - Server session with hashed passwords for the local demo account
+- Protected API routes and session restoration after refresh
 
 ## Tech stack
 
@@ -38,6 +39,8 @@ npm run build
 - `app/app.vue` — dashboard UI and Composition API state
 - `server/api/customer` — customer API routes
 - `prisma/schema.prisma` — customer, service, and repair-order models
+
+With the development server running, use `npm run test:smoke` to verify the health endpoint, authentication, and protected APIs.
 
 ## Roadmap
 
