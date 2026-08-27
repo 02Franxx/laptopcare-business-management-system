@@ -11,6 +11,7 @@ A responsive laptop-repair management dashboard built with Nuxt 4 and Vue 3 Comp
 - Responsive desktop and mobile layout
 - SQLite database with Prisma migrations
 - Simple demo login for local presentation
+- Server session with hashed passwords for the local demo account
 
 ## Tech stack
 

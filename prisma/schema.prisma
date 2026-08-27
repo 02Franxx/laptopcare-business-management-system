@@ -36,3 +36,10 @@ model RepairOrder {
   customer Customer      @relation(fields: [customerId], references: [id])
   service  RepairService @relation(fields: [serviceId], references: [id])
 }
+
+model User {
+  id           Int      @id @default(autoincrement())
+  username     String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
