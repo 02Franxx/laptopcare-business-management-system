@@ -1,0 +1,21 @@
+{
+  "name": "business-management-system",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.10.0",
+    "@prisma/client": "^7.10.0",
+    "better-sqlite3": "^13.0.3",
+    "nuxt": "^4.5.2",
+    "prisma": "^7.10.0",
+    "vue": "^3.5.41",
+    "vue-router": "^5.2.0"
+  }
+}
