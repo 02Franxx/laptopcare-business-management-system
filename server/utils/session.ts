@@ -6,5 +6,5 @@ export const createSession = (username: string) => {
   return token
 }
 
-export const getSession = (token?: string) => token ? sessions.get(token) : undefined
+export const lookupSession = (token?: string) => token ? sessions.get(token) : undefined
 export const deleteSession = (token?: string) => { if (token) sessions.delete(token) }
