@@ -230,6 +230,7 @@ const selectedService = ref('')
 const repairStatus = ref('Pending')
 
 const repairOrders = ref([])
+const dashboardStats = ref(null)
 const editingOrderIndex = ref(null)
 
 // Add Repair Order
@@ -391,12 +392,13 @@ const loadOrders = async () => {
   const rows = await $fetch('/api/order')
   repairOrders.value = rows.map(row => ({ id: row.id, customer: row.customer.name, brand: row.laptopBrand, model: row.laptopModel, problem: row.problem, service: row.service.name, status: row.status, customerId: row.customerId, serviceId: row.serviceId }))
 }
+const loadDashboard = async () => { dashboardStats.value = await $fetch('/api/dashboard') }
 
 onMounted(() => {
   $fetch('/api/auth/me').then((session) => {
     currentUser.value = session.username
     isLoggedIn.value = true
-    return Promise.all([loadCustomers(), loadServices(), loadOrders()])
+    return Promise.all([loadCustomers(), loadServices(), loadOrders(), loadDashboard()])
   }).catch(() => {})
 })
 </script>
@@ -623,7 +625,7 @@ onMounted(() => {
 
             <div>
               <p>Total Customers</p>
-              <h3>{{ totalCustomers }}</h3>
+              <h3>{{ dashboardStats?.customers ?? totalCustomers }}</h3>
             </div>
 
           </div>
@@ -637,7 +639,7 @@ onMounted(() => {
 
             <div>
               <p>Total Orders</p>
-              <h3>{{ totalRepairOrders }}</h3>
+              <h3>{{ dashboardStats?.orders ?? totalRepairOrders }}</h3>
             </div>
 
           </div>
@@ -651,7 +653,7 @@ onMounted(() => {
 
             <div>
               <p>Pending</p>
-              <h3>{{ pendingOrders }}</h3>
+              <h3>{{ dashboardStats?.pending ?? pendingOrders }}</h3>
             </div>
 
           </div>
@@ -665,7 +667,7 @@ onMounted(() => {
 
             <div>
               <p>In Progress</p>
-              <h3>{{ inProgressOrders }}</h3>
+              <h3>{{ dashboardStats?.inProgress ?? inProgressOrders }}</h3>
             </div>
 
           </div>
@@ -679,7 +681,7 @@ onMounted(() => {
 
             <div>
               <p>Completed</p>
-              <h3>{{ completedOrders }}</h3>
+              <h3>{{ dashboardStats?.completed ?? completedOrders }}</h3>
             </div>
 
           </div>
@@ -1289,7 +1291,8 @@ onMounted(() => {
                   :class="{
                     pending: order.status === 'Pending',
                     progress: order.status === 'In Progress',
-                    completed: order.status === 'Completed'
+                    completed: order.status === 'Completed',
+                    cancelled: order.status === 'Cancelled'
                   }"
                 >
                   {{ order.status }}
