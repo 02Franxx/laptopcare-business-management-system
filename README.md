@@ -1,53 +1,111 @@
 # LaptopCare Business Management System
 
-A responsive laptop-repair management dashboard built with Nuxt 4 and Vue 3 Composition API. This portfolio project demonstrates practical CRUD workflows, responsive business UI, Prisma data modelling, and a gradual migration from browser-only state to server persistence.
+LaptopCare is a small full-stack laptop repair shop management system. It provides a responsive dashboard for managing customers, repair services, and repair orders, with Prisma-backed persistence and session-based authentication.
 
 ## Features
 
-- Dashboard metrics for customers and repair-order status
-- Customer management with Prisma-backed creation and listing
-- Repair-service catalogue with pricing
-- Repair-order workflow with laptop brand/model selection and status tracking
-- Responsive desktop and mobile layout
-- SQLite database with Prisma migrations
-- Simple demo login for local presentation
-- Server session with hashed passwords for the local demo account
-- Protected API routes and session restoration after refresh
+- Dashboard statistics from the database: customers, orders, statuses, cancelled orders, and revenue
+- Customer CRUD with validation and delete business rules
+- Repair service CRUD with price validation
+- Repair order CRUD with customer/service relationships
+- Order statuses: Pending, In Progress, Completed, and Cancelled
+- Login, logout, current-user session, and protected API routes
+- Responsive Vue UI with confirmation dialogs and validation feedback
+- Repeatable demo data seed and API smoke tests
 
 ## Tech stack
 
-Nuxt 4 · Vue 3 · TypeScript · Prisma 7 · SQLite · CSS
+- Nuxt 4
+- Vue 3 Composition API
+- TypeScript
+- Prisma 7
+- SQLite
+- Node.js `scrypt` password hashing
+- CSS responsive layout
 
-## Run locally
+## Requirements
+
+- Node.js 20 or newer
+- npm
+
+## Installation
 
 ```bash
 npm install
 npx prisma generate
-npm run dev
 ```
 
-Open `http://localhost:3000`. Create the demo account and data first:
+## Environment configuration
+
+Copy the example environment file:
 
 ```bash
+Copy-Item .env.example .env
+```
+
+Default `.env` configuration:
+
+```env
+DATABASE_URL="file:./dev.db"
+```
+
+The local SQLite database is intentionally ignored by Git.
+
+## Database setup and demo data
+
+Synchronize the local schema and create demo records:
+
+```bash
+npx prisma db push
 npm run db:seed
 ```
 
-Demo account: `admin` / `admin123`
+Demo account:
 
-## Production check
+```text
+Username: admin
+Password: admin123
+```
+
+The seed command creates three customers, three repair services, and three repair orders. It is safe to run repeatedly.
+
+## Development
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+## Testing
+
+With the development server running, execute:
+
+```bash
+npm run test:smoke
+```
+
+The smoke test covers health checks, unauthorized API access, login, protected API reads, Customer CRUD, Service CRUD, Repair Order CRUD, Cancelled status, invalid input, and cleanup.
+
+## Production build
 
 ```bash
 npm run build
+npm run preview
 ```
 
-## Structure
+## Project structure
 
-- `app/app.vue` — dashboard UI and Composition API state
-- `server/api/customer` — customer API routes
-- `prisma/schema.prisma` — customer, service, and repair-order models
+```text
+app/app.vue                 Vue dashboard UI
+server/api                  Authentication, CRUD, health, and dashboard APIs
+server/middleware            API session protection
+server/utils                 Prisma and session utilities
+prisma/schema.prisma         Database models
+scripts/seed.mjs             Demo database seed
+scripts/smoke-test.mjs       API and business-rule smoke test
+```
 
-With the development server running, use `npm run test:smoke` to verify the health endpoint, authentication, and protected APIs.
+## Portfolio scope
 
-## Roadmap
-
-Future improvements include role-based permissions, persistent sessions, extracted reusable components, and browser-level end-to-end tests.
+This repository intentionally focuses on a complete small-business MVP rather than adding unrelated modules. Future production hardening could include role-based permissions, a shared session store, and browser-level end-to-end tests.
