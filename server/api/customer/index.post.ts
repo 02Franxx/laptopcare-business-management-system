@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   const phone = body.phone?.trim()
   const email = body.email?.trim().toLowerCase()
 
-  if (!name || !phone || !email || !/^\S+@\S+\.\S+$/.test(email)) {
+  if (!name || !/^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/.test(name) || !/^\d[\d -]{6,20}\d$/.test(phone) || !email || !/^\S+@\S+\.\S+$/.test(email)) {
     throw createError({ statusCode: 400, statusMessage: 'Name, phone, and a valid email are required.' })
   }
 

@@ -100,6 +100,7 @@ const cancelCustomerEdit = () => {
 const deleteCustomer = async (index) => {
   const customer = customers.value[index]
   if (!customer?.id) return
+  if (!window.confirm(`Delete customer ${customer.name}?`)) return
   await $fetch(`/api/customer/${customer.id}`, { method: 'DELETE' })
   customers.value.splice(index, 1)
 }
@@ -165,6 +166,7 @@ const cancelServiceEdit = () => {
 
 // Delete Repair Service
 const deleteRepairService = async (index) => {
+  if (!window.confirm(`Delete service ${repairServices.value[index].name}?`)) return
   await $fetch(`/api/service/${repairServices.value[index].id}`, { method: 'DELETE' })
   repairServices.value.splice(index, 1)
 }
@@ -289,6 +291,7 @@ const cancelOrderEdit = () => {
 
 // Delete Repair Order
 const deleteRepairOrder = async (index) => {
+  if (!window.confirm('Delete this repair order?')) return
   await $fetch(`/api/order/${repairOrders.value[index].id}`, { method: 'DELETE' })
   repairOrders.value.splice(index, 1)
 
@@ -1197,7 +1200,8 @@ onMounted(() => {
 
                 <option>Pending</option>
                 <option>In Progress</option>
-                <option>Completed</option>
+              <option>Completed</option>
+              <option>Cancelled</option>
 
               </select>
             </div>
