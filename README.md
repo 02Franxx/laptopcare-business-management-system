@@ -26,7 +26,13 @@ npx prisma generate
 npm run dev
 ```
 
-Open `http://localhost:3000`. The demo login accepts any non-empty username and password.
+Open `http://localhost:3000`. Create the demo account and data first:
+
+```bash
+npm run db:seed
+```
+
+Demo account: `admin` / `admin123`
 
 ## Production check
 
@@ -44,4 +50,4 @@ With the development server running, use `npm run test:smoke` to verify the heal
 
 ## Roadmap
 
-Complete server-side CRUD for services and repair orders, add authenticated sessions, extract reusable form/table components, and add unit plus end-to-end tests.
+Future improvements include role-based permissions, persistent sessions, extracted reusable components, and browser-level end-to-end tests.
