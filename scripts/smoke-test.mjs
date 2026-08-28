@@ -1,4 +1,4 @@
-const baseUrl = process.env.BASE_URL || 'http://127.0.0.1:3000'
+const baseUrl = process.env.BASE_URL || 'http://localhost:3000'
 const request = (path, options = {}) => fetch(`${baseUrl}${path}`, options)
 const json = (method, body, cookie = '') => ({ method, headers: { 'content-type': 'application/json', ...(cookie ? { cookie } : {}) }, body: JSON.stringify(body) })
 const assert = (condition, message) => { if (!condition) throw new Error(message) }
