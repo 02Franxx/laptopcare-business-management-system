@@ -8,6 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "test:smoke": "node scripts/smoke-test.mjs",
+    "db:seed": "node scripts/seed.mjs",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
