@@ -243,7 +243,6 @@ const selectedService = ref('')
 const repairStatus = ref('Pending')
 
 const repairOrders = ref([])
-const dashboardStats = ref(null)
 const editingOrderIndex = ref(null)
 
 // Add Repair Order
@@ -332,32 +331,7 @@ const clearRepairOrderForm = () => {
 // Dashboard
 // ================================
 
-const totalCustomers = computed(() => {
-  return customers.value.length
-})
-
-const totalRepairOrders = computed(() => {
-  return repairOrders.value.length
-})
-
-const pendingOrders = computed(() => {
-  return repairOrders.value.filter(
-    order => order.status === 'Pending'
-  ).length
-})
-
-const inProgressOrders = computed(() => {
-  return repairOrders.value.filter(
-    order => order.status === 'In Progress'
-  ).length
-})
-
-const completedOrders = computed(() => {
-  return repairOrders.value.filter(
-    order => order.status === 'Completed'
-  ).length
-})
-const cancelledOrders = computed(() => repairOrders.value.filter(order => order.status === 'Cancelled').length)
+const dashboardStats = ref({ customers: 0, orders: 0, pending: 0, inProgress: 0, completed: 0, cancelled: 0, revenue: 0 })
 
 // ================================
 // Login
@@ -642,7 +616,7 @@ onMounted(() => {
 
             <div>
               <p>Total Customers</p>
-              <h3>{{ dashboardStats?.customers ?? totalCustomers }}</h3>
+              <h3>{{ dashboardStats.customers }}</h3>
             </div>
 
           </div>
@@ -656,7 +630,7 @@ onMounted(() => {
 
             <div>
               <p>Total Orders</p>
-              <h3>{{ dashboardStats?.orders ?? totalRepairOrders }}</h3>
+              <h3>{{ dashboardStats.orders }}</h3>
             </div>
 
           </div>
@@ -670,7 +644,7 @@ onMounted(() => {
 
             <div>
               <p>Pending</p>
-              <h3>{{ dashboardStats?.pending ?? pendingOrders }}</h3>
+              <h3>{{ dashboardStats.pending }}</h3>
             </div>
 
           </div>
@@ -684,7 +658,7 @@ onMounted(() => {
 
             <div>
               <p>In Progress</p>
-              <h3>{{ dashboardStats?.inProgress ?? inProgressOrders }}</h3>
+              <h3>{{ dashboardStats.inProgress }}</h3>
             </div>
 
           </div>
@@ -698,14 +672,14 @@ onMounted(() => {
 
             <div>
               <p>Completed</p>
-              <h3>{{ dashboardStats?.completed ?? completedOrders }}</h3>
+              <h3>{{ dashboardStats.completed }}</h3>
             </div>
 
           </div>
 
           <div class="stat-card">
             <div class="stat-icon">🚫</div>
-            <div><p>Cancelled Orders</p><h3>{{ dashboardStats?.cancelled ?? cancelledOrders }}</h3></div>
+            <div><p>Cancelled Orders</p><h3>{{ dashboardStats.cancelled }}</h3></div>
           </div>
 
           <div class="stat-card">
