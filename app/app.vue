@@ -26,11 +26,16 @@ const customerEmail = ref('')
 
 const customers = ref([])
 const editingCustomerIndex = ref(null)
+const showValidationError = (message) => window.alert(message)
 
 // Add Customer
 const isValidEmail = (email) => /^\S+@\S+\.\S+$/.test(email)
 
 const addCustomer = async () => {
+  if (!customerName.value.trim()) return showValidationError('Please enter customer name.')
+  if (!/^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/.test(customerName.value.trim())) return showValidationError('Name may contain English letters and spaces only.')
+  if (!/^\d[\d -]{6,20}\d$/.test(customerPhone.value.trim())) return showValidationError('Please enter a valid phone number.')
+  if (!isValidEmail(customerEmail.value.trim())) return showValidationError('Please enter a valid email address.')
   if (
     customerName.value &&
     customerPhone.value &&
@@ -51,6 +56,7 @@ const addCustomer = async () => {
 
       cancelCustomerEdit()
     } catch (error) {
+      showValidationError(error?.data?.message || 'Failed to save customer.')
       console.error('Failed to add customer:', error)
     }
   }
@@ -69,6 +75,9 @@ const editCustomer = (index) => {
 
 // Update Customer
 const updateCustomer = async () => {
+  if (!customerName.value.trim() || !/^[A-Za-z]+(?:[ '-][A-Za-z]+)*$/.test(customerName.value.trim())) return showValidationError('Please enter a valid customer name.')
+  if (!/^\d[\d -]{6,20}\d$/.test(customerPhone.value.trim())) return showValidationError('Please enter a valid phone number.')
+  if (!isValidEmail(customerEmail.value.trim())) return showValidationError('Please enter a valid email address.')
   if (
     customerName.value &&
     customerPhone.value &&
@@ -117,6 +126,8 @@ const editingServiceIndex = ref(null)
 
 // Add Repair Service
 const addRepairService = async () => {
+  if (!serviceName.value.trim()) return showValidationError('Please enter service name.')
+  if (!Number.isFinite(Number(servicePrice.value)) || Number(servicePrice.value) <= 0) return showValidationError('Price must be a number greater than 0.')
   if (
     serviceName.value &&
     servicePrice.value
@@ -141,6 +152,8 @@ const editRepairService = (index) => {
 
 // Update Repair Service
 const updateRepairService = async () => {
+  if (!serviceName.value.trim()) return showValidationError('Please enter service name.')
+  if (!Number.isFinite(Number(servicePrice.value)) || Number(servicePrice.value) <= 0) return showValidationError('Price must be a number greater than 0.')
   if (
     serviceName.value &&
     servicePrice.value
@@ -235,6 +248,7 @@ const editingOrderIndex = ref(null)
 
 // Add Repair Order
 const addRepairOrder = async () => {
+  if (!selectedCustomer.value || !selectedBrand.value || !selectedModel.value || !problemDescription.value.trim() || !selectedService.value) return showValidationError('Please complete all repair order fields.')
   if (
     selectedCustomer.value !== '' &&
     selectedBrand.value !== '' &&
@@ -244,7 +258,7 @@ const addRepairOrder = async () => {
   ) {
     const customer = customers.value.find(item => item.name === selectedCustomer.value)
     const service = repairServices.value.find(item => item.name === selectedService.value)
-    if (!customer?.id || !service?.id) return
+    if (!customer?.id || !service?.id) return showValidationError('Please select a valid customer and service.')
     const created = await $fetch('/api/order', { method: 'POST', body: { customerId: customer.id, serviceId: service.id, laptopBrand: selectedBrand.value, laptopModel: selectedModel.value, problem: problemDescription.value, status: repairStatus.value } })
     repairOrders.value.unshift({ id: created.id, customer: created.customer.name, brand: created.laptopBrand, model: created.laptopModel, problem: created.problem, service: created.service.name, status: created.status, customerId: created.customerId, serviceId: created.serviceId })
 
@@ -268,6 +282,7 @@ const editRepairOrder = (index) => {
 
 // Update Repair Order
 const updateRepairOrder = async () => {
+  if (!selectedCustomer.value || !selectedBrand.value || !selectedModel.value || !problemDescription.value.trim() || !selectedService.value) return showValidationError('Please complete all repair order fields.')
   if (
     selectedCustomer.value !== '' &&
     selectedBrand.value !== '' &&
@@ -342,6 +357,7 @@ const completedOrders = computed(() => {
     order => order.status === 'Completed'
   ).length
 })
+const cancelledOrders = computed(() => repairOrders.value.filter(order => order.status === 'Cancelled').length)
 
 // ================================
 // Login
@@ -685,6 +701,16 @@ onMounted(() => {
               <h3>{{ dashboardStats?.completed ?? completedOrders }}</h3>
             </div>
 
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">🚫</div>
+            <div><p>Cancelled Orders</p><h3>{{ dashboardStats?.cancelled ?? cancelledOrders }}</h3></div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div><p>Total Revenue</p><h3>RM {{ Number(dashboardStats?.revenue || 0).toFixed(2) }}</h3></div>
           </div>
 
         </div>
