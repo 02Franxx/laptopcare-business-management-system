@@ -393,6 +393,7 @@ const loadOrders = async () => {
   repairOrders.value = rows.map(row => ({ id: row.id, customer: row.customer.name, brand: row.laptopBrand, model: row.laptopModel, problem: row.problem, service: row.service.name, status: row.status, customerId: row.customerId, serviceId: row.serviceId }))
 }
 const loadDashboard = async () => { dashboardStats.value = await $fetch('/api/dashboard') }
+watch([customers, repairOrders], () => { if (isLoggedIn.value) loadDashboard() }, { deep: true })
 
 onMounted(() => {
   $fetch('/api/auth/me').then((session) => {
